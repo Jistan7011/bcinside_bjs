@@ -1,17 +1,17 @@
 <%- include("./include/header") %>
-
-    <body>
-        <h1>내가 댓글단 게시물 목록</h1>
-        <div class="container">
-
-            <div class="inner">
-
-                <ul class="user-list">
-                    <% comments.forEach(comment=> { %>
-                        <li><%= comment.title %> - <%= comment.text %></li>
-                        <% }); %>
-                </ul>
-            </div>
-        </div>
-    </body>
-    <%- include("./include/footer") %>
+<div class="posts_container mypage_container">
+  <h1 class="posts_box_title"><%- user.nickname %> 님이 댓글단 게시물 목록</h1>
+  <ul class="posts_box post_box_line">
+    <li class="posts_list_title">게시글</li>
+    <li class="posts_list_user">댓글</li>
+  </ul>
+  <% comments.forEach(comment => { %>
+  <ul class="posts_box">
+    <a href="/posts/<%= comment.post._id %>">
+      <li class="posts_list_title"><%= comment.post.title %></li>
+    </a>
+    <li class="posts_list_time"><%= comment.text %></li>
+  </ul>
+  <% }); %>
+</div>
+<%- include("./include/footer") %>

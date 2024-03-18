@@ -92,3 +92,8 @@
     width: 70%;
   }
 }
+
+.mypage_container {
+  width: 1000px;
+  margin: 0 auto;
+}

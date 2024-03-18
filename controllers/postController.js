@@ -257,4 +257,5 @@ module.exports = {
   addComment,
   deleteComment,
   clickThumb,
+  formattedDate,
 };

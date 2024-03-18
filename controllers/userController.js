@@ -11,6 +11,16 @@ const GOOGLE_CLIENT_ID =
   "757443114508-8fjkol869pqnhsmubv2jvehdemiib3r0.apps.googleusercontent.com";
 const axios = require("axios");
 
+const formattedDate = (d) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const seconds = String(d.getSeconds()).padStart(2, "0");
+  return `${year}.${month}.${day} ${hours}:${minutes}:${seconds}`;
+};
+
 const getLogin = (req, res) => {
   res.render("login", { message: "" });
 };
@@ -79,7 +89,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     const decoded = jwt.verify(token, jwtSecret);
     const id = decoded.id;
     await User.findByIdAndDelete(id);
-    await Post.deleteMany({user:id});
+    await Post.deleteMany({ user: id });
   } catch (err) {
     return res.status(401).json({ message: "토큰 오류" });
   }
@@ -212,7 +222,7 @@ const myPosts = asyncHandler(async (req, res) => {
   const decoded = jwt.verify(token, jwtSecret);
   const id = decoded.id;
   const myposts = await Post.find({ user: id });
-  res.render("p_written", { myposts: myposts });
+  res.render("p_written", { myposts: myposts, formattedDate });
 });
 
 const mylikes = asyncHandler(async (req, res) => {
@@ -220,27 +230,17 @@ const mylikes = asyncHandler(async (req, res) => {
   const decoded = jwt.verify(token, jwtSecret);
   const id = decoded.id;
   const user = await User.findById(id).populate("liked_post");
-  res.render("p_liked", { user: user });
+  res.render("p_liked", { user: user, formattedDate });
 });
 
 const myReplies = asyncHandler(async (req, res) => {
   const token = req.cookies.token;
   const decoded = jwt.verify(token, jwtSecret);
   const id = decoded.id;
-  const comments = await Comment.find({ user: id });
+  const user = await User.findById(id).populate("liked_post");
+  const comments = await Comment.find({ user: id }).populate("post");
 
-  const finedDataPromises = comments.map(async (comment) => {
-    const thispost = await Post.findById(comment.post);
-    const thistitle = thispost.title;
-    comment.title = thistitle;
-    return { ...comment.toObject(), title: thistitle };
-  });
-
-  // Promise.all로 모든 Promise가 끝날 때까지 기다린다.
-  const finedData = await Promise.all(finedDataPromises);
-
-  console.log("finedData :>> ", finedData);
-  res.render("p_replied", { comments: finedData });
+  res.render("p_replied", { user, comments });
 });
 
 module.exports = {
